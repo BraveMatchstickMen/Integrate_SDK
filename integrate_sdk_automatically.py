@@ -42,10 +42,7 @@ else:
 
 sdk_version = sdk_version[0:5] + sdk_version[13:]
 
-if int(which_one) == 1:
-    inst_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
-    print inst_spec_source
-elif int(which_one) == 2:
+def update_stud_podspec():
     stud_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
     stud_spec_version = "  spec.version          = \"%s\"\n" % (sdk_version)
     print stud_spec_source
@@ -59,13 +56,37 @@ elif int(which_one) == 2:
         if line.find("spec.version") == 2:
             line = stud_spec_version
         stud_data += line
+    f_stud_podspec.close()
+    return stud_data
 
+def update_inst_podspec():
+    inst_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
+    inst_spec_version = "  spec.version          = \"%s\"\n" % (sdk_version)
+    print inst_spec_source
+
+    inst_data = ""
+
+    f_inst_podspec = open("BbInstructorSDK.podspec", "r+")
+    for line in f_inst_podspec.readlines():
+        if line.find("spec.source") == 2:
+            line = inst_spec_source
+        if line.find("spec.version") == 2:
+            line = inst_spec_version
+        inst_data += line
+    f_inst_podspec.close()
+    return inst_data
+
+if int(which_one) == 1:
+    inst_data = update_inst_podspec()
+    print inst_data
+elif int(which_one) == 2:
+    stud_data = update_stud_podspec()
     print stud_data
 else:
-    inst_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
-    stud_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
-    print inst_spec_source
-    print stud_spec_source
+    inst_data = update_inst_podspec()
+    stud_data = update_stud_podspec()
+    print inst_data
+    print stud_data
 
 os.chdir("/Users/bchai/ios-bbspecs")
 
@@ -86,25 +107,46 @@ if git_shell("git branch") != sdk_version:
     git_shell("git checkout -b " + sdk_version)
     git_shell("git checkout " + sdk_version)
 
-os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK")
+def write_stud_podspec():
+    os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK")
 
-fold_name = sdk_version
+    fold_name = sdk_version
 
-try:
-    os.mkdir(fold_name)
-except OSError:
-    pass
+    try:
+        os.mkdir(fold_name)
+    except OSError:
+        pass
 
-os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK/" + fold_name)
+    os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK/" + fold_name)
 
-print os.getcwd()
+    print os.getcwd()
 
-if int(which_one) == 1:
-    print ""
-elif int(which_one) == 2:
     with open("BbStudentSDK.podspec", "wb") as f:
         f.writelines(stud_data)
+
+def write_inst_podspec():
+    os.chdir("/Users/bchai/ios-bbspecs/BbInstructorSDK")
+
+    fold_name = sdk_version
+
+    try:
+        os.mkdir(fold_name)
+    except OSError:
+        pass
+
+    os.chdir("/Users/bchai/ios-bbspecs/BbInstructorSDK/" + fold_name)
+
+    print os.getcwd()
+
+    with open("BbInstructorSDK.podspec", "wb") as f:
+        f.writelines(stud_data)
+
+if int(which_one) == 1:
+    write_inst_podspec()
+elif int(which_one) == 2:
+    write_stud_podspec()
 else:
-    print ""
+    write_inst_podspec()
+    write_stud_podspec()
 
 
