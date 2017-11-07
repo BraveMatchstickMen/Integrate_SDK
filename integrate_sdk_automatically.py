@@ -40,6 +40,33 @@ else:
 
 # post podspec
 
+sdk_version = sdk_version[0:5] + sdk_version[13:]
+
+if int(which_one) == 1:
+    inst_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
+    print inst_spec_source
+elif int(which_one) == 2:
+    stud_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
+    stud_spec_version = "  spec.version          = \"%s\"\n" % (sdk_version)
+    print stud_spec_source
+
+    stud_data = ""
+
+    f_stud_podspec = open("BbStudentSDK.podspec", "r+")
+    for line in f_stud_podspec.readlines():
+        if line.find("spec.source") == 2:
+            line = stud_spec_source
+        if line.find("spec.version") == 2:
+            line = stud_spec_version
+        stud_data += line
+
+    print stud_data
+else:
+    inst_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
+    stud_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
+    print inst_spec_source
+    print stud_spec_source
+
 os.chdir("/Users/bchai/ios-bbspecs")
 
 print os.getcwd()
@@ -57,10 +84,11 @@ git_shell("git pull")
 
 if git_shell("git branch") != sdk_version:
     git_shell("git checkout -b " + sdk_version)
+    git_shell("git checkout " + sdk_version)
 
 os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK")
 
-fold_name = sdk_version[0:5] + sdk_version[13:]
+fold_name = sdk_version
 
 try:
     os.mkdir(fold_name)
@@ -72,27 +100,11 @@ os.chdir("/Users/bchai/ios-bbspecs/BbStudentSDK/" + fold_name)
 print os.getcwd()
 
 if int(which_one) == 1:
-    inst_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
-    print inst_spec_source
+    print ""
 elif int(which_one) == 2:
-    stud_spec_source = "  spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
-    print stud_spec_source
-
-    stud_data = ""
-
-    with open("BbStudentSDK.podspec", "r+") as f:
-        for line in f.readlines():
-            if line.find("spec.source") == 2:
-                line = stud_spec_source
-            stud_data += line
-        f.close()
-
-    with open("BbStudentSDK.podspec", "r+") as f:
+    with open("BbStudentSDK.podspec", "wb") as f:
         f.writelines(stud_data)
-        print f.read()
-        f.close()
 else:
-    inst_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (inst_sdk_url, inst_sha1)
-    stud_spec_source = "spec.source           = { :http => \"%s\", :sha1 => \"%s\"}\n" % (stud_sdk_url, stud_sha1)
-    print inst_spec_source
-    print stud_spec_source
+    print ""
+
+
